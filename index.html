@@ -46,7 +46,7 @@ svg{ background-color: lightgrey;
 
     	var x = d3.scale.ordinal().rangeRoundBands([0, width])
     			.domain(numTweets.map(function(d) { return d.candidate; }));
-		var y = d3.scale.linear().domain([0,1500]).range([height,0]);
+		var y = d3.scale.linear().domain([0,5000]).range([height,0]);
 				
 
 		var xAxis = d3.svg.axis()
@@ -65,7 +65,7 @@ svg{ background-color: lightgrey;
 		
 
 
-		d3.csv("State_Sentiment.csv", function(error, rows){
+		d3.csv("Sentiment.csv", function(error, rows){
 			if(error){console.log(error);}
 			
 			//Function taken from stackoverflow user aston
