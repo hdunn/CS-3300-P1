@@ -136,36 +136,55 @@ svg{ background-color: lightgrey;
 		{state:"Vermont",winner:"Donald Trump"},
 		{state:"Virginia",winner:"Donald Trump"}
 	];
+
 	var sentimentFrequencies = [
-			{"candidate":"Donald Trump","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Ted Cruz","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Marco Rubio","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Ben Carson","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Mike Huckabee","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Chris Christie","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"John Kasich","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Jeb Bush","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Scott Walker","possent":0,"negsent":0,"neutralsent":0},
-			{"candidate":"Rand Paul","possent":0,"negsent":0,"neutralsent":0}
-			];
+		{"candidate":"Donald Trump","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Ted Cruz","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Marco Rubio","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Ben Carson","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Mike Huckabee","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Chris Christie","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"John Kasich","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Jeb Bush","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Scott Walker","possent":0,"negsent":0,"neutralsent":0},
+		{"candidate":"Rand Paul","possent":0,"negsent":0,"neutralsent":0}
+		];
+
+	data = [];
+
+	primaryresults.forEach(function(primary){
+		sentimentFrequencies.forEach(function(entry){
+				newentry = {
+					"state":primary.state,
+					"candidate":entry.candidate,
+					"possent":entry.possent,
+					"negsent":entry.negsent,
+					"neutralsent":entry.neutralsent
+				};
+				data.push(newentry);
+		});
+	});
 	//Function taken from stackoverflow user aston
-	function changeDesc( candidate,sentiment ) {
-			for (var i in sentimentFrequencies) {
-				if (sentimentFrequencies[i].candidate == candidate) {
-				if(sentimentFrequencies == "possent"){
-					sentimentFrequencies[i].possent = sentimentFrequencies[i].possent+1;
+	function changeDesc( candidate,sentiment,data,state) {
+			for (var i in data) {
+				if (data[i].candidate == candidate && data[i].state == state) {
+				if(sentiment == "possent"){
+					data[i].possent = data[i].possent+1;
 				} else if(sentiment == "negsent"){
-					sentimentFrequencies[i].negsent = sentimentFrequencies[i].negsent+1;
+					data[i].negsent = data[i].negsent+1;
 				} else {
-					sentimentFrequencies[i].neutralsent = sentimentFrequencies[i].neutralsent+1;
+					data[i].neutralsent = data[i].neutralsent+1;
 				}
 					break; //Stop this loop, we found it!
 				}
 			}
 	}
+
+
 	//Get data for each candidate by state
 	var sentiments = [];
 	d3.csv("State_Sentiment.csv", function(f){
+		
 		//Parse data into javascript array of objects
 		f.forEach(function(r){
 		sentiments.push({
@@ -175,30 +194,21 @@ svg{ background-color: lightgrey;
 			location: r.tweet_location
 		});
 		});
-		//This is the data we work with
-		data = [];
 		//Iterate through states where primaries have occurred and tally up candidates sentiments
 		primaryresults.forEach(function(primary){
-			//add state field to each candidate frequency
-			sentimentFrequencies.forEach(function(entry){
-				entry.state = primary.state;
-			});
-
 			var stateSentiments = getStateSentiments(primary.state,sentiments);
 			stateSentiments.forEach(function(tweet){
 				var candidate = tweet.candidate;
 				if(tweet.sentiment == "Positive"){
-					changeDesc(candidate,"possent");
+					changeDesc(candidate,"possent",data,primary.state);
 				} else if(tweet.sentiment == "Negative") {
-					changeDesc(candidate,"negsent");
+					changeDesc(candidate,"negsent",data,primary.state);
 				} else {
-					changeDesc(candidate,"neutralsent");
+					changeDesc(candidate,"neutralsent",data,primary.state);
 				}
-			});
-			data.push(sentimentFrequencies);
-			
+			});	
 		});
-		console.log(data);
+		//console.log(data);
 	});
 
     
