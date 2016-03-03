@@ -26,10 +26,117 @@ svg{ background-color: lightgrey;
 </style>
 </head>
 <body>
-	<svg height = "900" width = "900"></svg>
+	<svg id = "map" height = "500" width = "960"></svg><br><br>
 	<script>
-		var svg = d3.select("svg");
-		var numTweets = [
+	//FUNCTION TAKEN FROM GITHUB USER CalebGrove
+	// USAGE:
+	// abbrState('ny', 'name');
+	// --> 'New York'
+	// abbrState('New York', 'abbr');
+	// --> 'NY'
+	function abbrState(input, to){
+	    var states = [
+	        ['Arizona', 'AZ'],
+	        ['Alabama', 'AL'],
+	        ['Alaska', 'AK'],
+	        ['Arizona', 'AZ'],
+	        ['Arkansas', 'AR'],
+	        ['California', 'CA'],
+	        ['Colorado', 'CO'],
+	        ['Connecticut', 'CT'],
+	        ['Delaware', 'DE'],
+	        ['Florida', 'FL'],
+	        ['Georgia', 'GA'],
+	        ['Hawaii', 'HI'],
+	        ['Idaho', 'ID'],
+	        ['Illinois', 'IL'],
+	        ['Indiana', 'IN'],
+	        ['Iowa', 'IA'],
+	        ['Kansas', 'KS'],
+	        ['Kentucky', 'KY'],
+	        ['Kentucky', 'KY'],
+	        ['Louisiana', 'LA'],
+	        ['Maine', 'ME'],
+	        ['Maryland', 'MD'],
+	        ['Massachusetts', 'MA'],
+	        ['Michigan', 'MI'],
+	        ['Minnesota', 'MN'],
+	        ['Mississippi', 'MS'],
+	        ['Missouri', 'MO'],
+	        ['Montana', 'MT'],
+	        ['Nebraska', 'NE'],
+	        ['Nevada', 'NV'],
+	        ['New Hampshire', 'NH'],
+	        ['New Jersey', 'NJ'],
+	        ['New Mexico', 'NM'],
+	        ['New York', 'NY'],
+	        ['North Carolina', 'NC'],
+	        ['North Dakota', 'ND'],
+	        ['Ohio', 'OH'],
+	        ['Oklahoma', 'OK'],
+	        ['Oregon', 'OR'],
+	        ['Pennsylvania', 'PA'],
+	        ['Rhode Island', 'RI'],
+	        ['South Carolina', 'SC'],
+	        ['South Dakota', 'SD'],
+	        ['Tennessee', 'TN'],
+	        ['Texas', 'TX'],
+	        ['Utah', 'UT'],
+	        ['Vermont', 'VT'],
+	        ['Virginia', 'VA'],
+	        ['Washington', 'WA'],
+	        ['West Virginia', 'WV'],
+	        ['Wisconsin', 'WI'],
+	        ['Wyoming', 'WY'],
+	    ];
+
+	    if (to == 'abbr'){
+	        input = input.replace(/\w\S*/g, function(txt){return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();});
+	        for(i = 0; i < states.length; i++){
+	            if(states[i][0] == input){
+	                return(states[i][1]);
+	            }
+	        }    
+	    } else if (to == 'name'){
+	        input = input.toUpperCase();
+	        for(i = 0; i < states.length; i++){
+	            if(states[i][1] == input){
+	                return(states[i][0]);
+	            }
+	        }    
+	    }
+	}
+	//function that gets the state sentiments for an input state
+	function getStateSentiments(state,data){
+		var result = [];
+		var abbr = abbrState(state,"abbr");
+		data.forEach(function(i){
+			if(i.location.indexOf(abbr) != -1 || i.location.indexOf(state) != -1){
+				result.push(i);
+			}
+		});
+		return result;
+	};
+
+
+	var primaryresults = [
+		{state:"Iowa",winner:"Ted Cruz"},
+		{state:"New Hampshire",winner:"Donald Trump"},
+		{state:"South Carolina",winner:"Donald Trump"},
+		{state:"Nevada",winner:"Donald Trump"},
+		{state:"Alabama",winner:"Donald Trump"},
+		{state:"Alaska",winner:"Ted Cruz"},
+		{state:"Arkansas",winner:"Donald Trump"},
+		{state:"Georgia",winner:"Donald Trump"},
+		{state:"Massachusetts",winner:"Donald Trump"},
+		{state:"Minnesota",winner:"Marco Rubio"},
+		{state:"Oklahoma",winner:"Ted Cruz"},
+		{state:"Tennessee",winner:"Donald Trump"},
+		{state:"Texas",winner:"Ted Cruz"},
+		{state:"Vermont",winner:"Donald Trump"},
+		{state:"Virginia",winner:"Donald Trump"}
+	];
+	var sentimentFrequencies = [
 			{"candidate":"Donald Trump","possent":0,"negsent":0,"neutralsent":0},
 			{"candidate":"Ted Cruz","possent":0,"negsent":0,"neutralsent":0},
 			{"candidate":"Marco Rubio","possent":0,"negsent":0,"neutralsent":0},
@@ -41,144 +148,58 @@ svg{ background-color: lightgrey;
 			{"candidate":"Scott Walker","possent":0,"negsent":0,"neutralsent":0},
 			{"candidate":"Rand Paul","possent":0,"negsent":0,"neutralsent":0}
 			];
-
-		var margin = {top: 20, right: 20, bottom: 70, left: 40};
-    	var	width = 900- margin.left - margin.right;
-    	var	height = 900 - margin.top - margin.bottom;
-    	var h = svg.attr("height");
-    	var w = svg.attr("width");
-
-
-    	var x = d3.scale.ordinal().rangeRoundBands([0, width])
-    			.domain(numTweets.map(function(d) { return d.candidate; }));
-		var y = d3.scale.linear().domain([0,5000]).range([height,0]);
-				
-
-		var xAxis = d3.svg.axis()
-   					.scale(x)
-    				.orient("bottom");
-    				
-		var yAxis = d3.svg.axis()
-    				.scale(y)
-    				.orient("left")
-    				.ticks(10);
-		
-    	svg.append("g").attr("class", "axis")
-			.attr("transform","translate(0,"+y(0)+")")
-			.call(xAxis);
-
-		
-
-
-		d3.csv("Sentiment.csv", function(error, rows){
-			if(error){console.log(error);}
-			
-			//Function taken from stackoverflow user aston
-			function changeDesc( candidate,sentiment ) {
-  				for (var i in numTweets) {
-     				if (numTweets[i].candidate == candidate) {
-        				if(sentiment == "possent"){
-        					numTweets[i].possent = numTweets[i].possent+1;
-        				} else if(sentiment == "negsent"){
-        					numTweets[i].negsent = numTweets[i].negsent+1;
-        				} else {
-        					numTweets[i].neutralsent = numTweets[i].neutralsent+1;
-        				}
-       					break; //Stop this loop, we found it!
-     				}
-  				}
+	//Function taken from stackoverflow user aston
+	function changeDesc( candidate,sentiment ) {
+			for (var i in sentimentFrequencies) {
+				if (sentimentFrequencies[i].candidate == candidate) {
+				if(sentimentFrequencies == "possent"){
+					sentimentFrequencies[i].possent = sentimentFrequencies[i].possent+1;
+				} else if(sentiment == "negsent"){
+					sentimentFrequencies[i].negsent = sentimentFrequencies[i].negsent+1;
+				} else {
+					sentimentFrequencies[i].neutralsent = sentimentFrequencies[i].neutralsent+1;
+				}
+					break; //Stop this loop, we found it!
+				}
 			}
-			rows.forEach(function(r){
-				var candidate = r.candidate;
-				if(r.sentiment == "Positive"){
+	}
+	//Get data for each candidate by state
+	var sentiments = [];
+	d3.csv("State_Sentiment.csv", function(f){
+		//Parse data into javascript array of objects
+		f.forEach(function(r){
+		sentiments.push({
+			candidate: r.candidate,
+			sentiment: r.sentiment,
+			retweet: r.retweet_count,
+			location: r.tweet_location
+		});
+		});
+		//This is the data we work with
+		data = [];
+		//Iterate through states where primaries have occurred and tally up candidates sentiments
+		primaryresults.forEach(function(primary){
+			//add state field to each candidate frequency
+			sentimentFrequencies.forEach(function(entry){
+				entry.state = primary.state;
+			});
+
+			var stateSentiments = getStateSentiments(primary.state,sentiments);
+			stateSentiments.forEach(function(tweet){
+				var candidate = tweet.candidate;
+				if(tweet.sentiment == "Positive"){
 					changeDesc(candidate,"possent");
-				} else if(r.sentiment == "Negative") {
+				} else if(tweet.sentiment == "Negative") {
 					changeDesc(candidate,"negsent");
 				} else {
 					changeDesc(candidate,"neutralsent");
 				}
 			});
-			console.log(numTweets);
-
-			numTweets.forEach(function(row) {
-
-    			svg.append("rect")
-					.attr("class","possent")
-					.attr("x", x(row.candidate)+20)
-					.attr("y",  y(row.possent) - margin.bottom - 20)
-					.attr("height",900 - y(row.possent))
-					.attr("width", 35);
-
-				svg.append("text")
-					.attr("x",x(row.candidate)+37.5)
-					.attr("y",y(row.possent) - margin.bottom - 5)
-					.attr("text-anchor","middle")
-					.text(row.possent);
-
-				svg.append("rect")
-					.attr("class","negsent")
-					.attr("x", x(row.candidate)+20)
-					.attr("y",  y(row.negsent) - margin.bottom - 20 - (900-y(row.possent)))
-					.attr("height",900 - y(row.negsent))
-					.attr("width", 35);
-
-				svg.append("text")
-					.attr("x",x(row.candidate)+37.5)
-					.attr("y",y(row.negsent) - margin.bottom - 5 - (900-y(row.possent)))
-					.attr("text-anchor","middle")
-					.text(row.negsent);
-
-				svg.append("rect")
-					.attr("class","neutralsent")
-					.attr("x", x(row.candidate)+20)
-					.attr("y",  y(row.neutralsent)- margin.bottom - 20 - (900-y(row.possent))-(900-y(row.negsent)))
-					.attr("height",900 - y(row.neutralsent))
-					.attr("width", 35);
-
-				svg.append("text")
-					.attr("x",x(row.candidate)+37.5)
-					.attr("y",y(row.neutralsent)- margin.bottom - 5 - (900-y(row.possent))-(900-y(row.negsent)))
-					.attr("text-anchor","middle")
-					.text(row.neutralsent);
-  			});
+			data.push(sentimentFrequencies);
+			
 		});
-
-		
-
-	</script>
-
-	<svg id = "map" height = "500" width = "960"></svg><br><br>
-	<script>
-	var projection = d3.geo.albersUsa()
-		.scale(1100);
-
-	var path = d3.geo.path()
-		.projection(projection);
-
-	var map = d3.select("#map")
-    
-    var g = map.append("g");
-	var usObjects;
-	
-	d3.json("us-states.json", function(error, us) {
-		g.selectAll("path")
-                   .data(us.features)
-                   .enter()
-                   .append("path")
-                   .attr("d", path)
-                   .style("fill", "steelblue");
-        console.log(us.features)
-		
-
-	
-		g.selectAll("path").data(us.features)
-		.on("mouseover", function (state) {
-		console.log(state.properties.name);
-		});
-
-
+		console.log(data);
 	});
-	
 
     
 	</script>
