@@ -5,8 +5,7 @@
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <style type="text/css">
-svg{ background-color: lightgrey;
-}
+
 .possent {
 	fill:green;
 }
@@ -26,7 +25,9 @@ svg{ background-color: lightgrey;
 </style>
 </head>
 <body>
-	<svg id = "map" height = "500" width = "960"></svg><br><br>
+	<svg id = "trump" width="600" height="600"></svg><br><br>
+	<svg id = "cruz" width="600" height="600"></svg><br><br>
+	<svg id = "rubio" width="600" height="600"></svg>
 	<script>
 	//FUNCTION TAKEN FROM GITHUB USER CalebGrove
 	// USAGE:
@@ -156,6 +157,7 @@ svg{ background-color: lightgrey;
 		sentimentFrequencies.forEach(function(entry){
 				newentry = {
 					"state":primary.state,
+					"winner":primary.winner,
 					"candidate":entry.candidate,
 					"possent":entry.possent,
 					"negsent":entry.negsent,
@@ -179,6 +181,94 @@ svg{ background-color: lightgrey;
 				}
 			}
 	}
+
+	function drawData(sentimentArray, candidateName, candidateImg, id, stateOrder) {
+		var width = 500,
+			height = 500,
+			radius = 250;
+
+        var sentimentColors = d3.scale.ordinal().range(['#F78181', '#DF0101', '#B40404']);
+        var backgroundColors = d3.scale.ordinal().range(['#C0C0C0', "#D3D3D3"]);
+        var stateColors = ['#ff0000', "#610B0B"];
+
+        var numStateBars = stateOrder.length;
+        var numSentimentBars = sentimentArray.length;
+
+        var svg = d3.select(id)
+          			.append('svg')
+          			.attr('width', width)
+          			.attr('height', height)
+          			.append('g')
+          			.attr('transform', 'translate(250,250)');
+
+        var statesArc = d3.svg.arc()
+          					  .outerRadius(radius)
+          					  .innerRadius(radius-40)
+          					  .startAngle(function(d,i) { return (i * 2 * Math.PI) / numStateBars; })
+      						  .endAngle(function(d,i) { return ((i + 1) * 2 * Math.PI) / numStateBars; });
+
+      	var statesPie = d3.layout.pie().sort(null).value(function(d) { return d.count; });
+
+        var backgroundArc = d3.svg.arc()
+						.outerRadius(radius)
+						.startAngle(function(d,i) { return (i * 2 * Math.PI) / numStateBars; })
+						.endAngle(function(d,i) { return ((i + 1) * 2 * Math.PI) / numStateBars; });
+
+      	
+
+      	var statesPath = svg.selectAll('.states')
+          					.data(statesPie(stateOrder))
+          					.enter()
+          					.append('path')
+          					.attr('d', statesArc)
+          					.attr('class', '.states')
+          					.attr('fill', function(d, i) { 
+          						console.log(d.data.winner);
+          						if (d.data.winner == candidateName) {
+          							return stateColors[0]; 
+          						} else {
+          							return stateColors[1];
+          						} })
+          					.style('stroke', '2E2E2E')
+  							.style('stroke-width', '2');
+
+        var heightScale = d3.scale.linear().domain([0,1]).range([150,radius-50]);
+
+
+        var sentimentsArc = d3.svg.arc()
+        						.startAngle(function(d,i) { return ((i * 2 * Math.PI) / numSentimentBars); })
+      							.endAngle(function(d,i) { return ((i + 1) * 2 * Math.PI) / numSentimentBars; });
+
+        var sentimentPie = d3.layout.pie().sort(null).value(function(d) { return d.count; });
+
+        var sentimentPath = svg.selectAll('.sentiments')
+          .data(sentimentPie(sentimentArray))
+          .enter()
+          .append('path')
+          .attr('d', function(d, i) { return sentimentsArc.outerRadius(heightScale(d.data))(d,i); })
+          .attr('class', '.sentiments')
+          .attr('fill', function(d, i) { 
+            return sentimentColors(i);
+          });
+
+          var backgroundPath = svg.selectAll('.background')
+          						.data(statesPie(stateOrder))
+          						.enter()
+          						.append('path')
+          						.attr('d', backgroundArc)
+          						.attr('class', '.background')
+          						.attr('fill', 'none')
+          						.style('stroke', '2E2E2E')
+  								.style('stroke-width', '1');
+
+        var img = svg.append("svg:image")
+    				.attr("xlink:href", candidateImg)
+    				.attr("width", 150)
+				    .attr("height", 150)
+				    .attr("x", -75)
+				    .attr("y",-75);
+
+	};
 
 
 	//Get data for each candidate by state
@@ -208,7 +298,39 @@ svg{ background-color: lightgrey;
 				}
 			});	
 		});
-		//console.log(data);
+		
+		trumpSentiments = [];
+		cruzSentiments = [];
+		rubioSentiments = [];
+		stateOrder = [];
+
+		data.forEach(function (d) {
+			var totalSentiments = d.possent+d.neutralsent+d.negsent;
+			if (totalSentiments==0) {totalSentiments = 1;}
+			if (d.candidate == "Donald Trump") {
+				trumpSentiments.push(d.possent/totalSentiments);
+				trumpSentiments.push(d.neutralsent/totalSentiments);
+				trumpSentiments.push(d.negsent/totalSentiments);
+				stateOrder.push({'state':d.state,'winner':d.winner});
+			}
+			if (d.candidate == "Ted Cruz") {
+				cruzSentiments.push(d.possent/totalSentiments);
+				cruzSentiments.push(d.neutralsent/totalSentiments);
+				cruzSentiments.push(d.negsent/totalSentiments);
+			}
+			if (d.candidate == "Marco Rubio") {
+				rubioSentiments.push(d.possent/totalSentiments);
+				rubioSentiments.push(d.neutralsent/totalSentiments);
+				rubioSentiments.push(d.negsent/totalSentiments);
+			}
+		});
+
+		// Start svg here
+
+		drawData(trumpSentiments, "Donald Trump", 'http://media.cq.com/images/trump-circle.png', '#trump', stateOrder);
+		drawData(cruzSentiments, "Ted Cruz", 'http://media.cq.com/images/cruz-circle.png', '#cruz', stateOrder);
+		drawData(cruzSentiments, "Marco Rubio", 'http://media.cq.com/images/rubio-circle.png', '#rubio', stateOrder);
+
 	});
 
     
