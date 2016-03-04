@@ -222,8 +222,7 @@
           					.append('path')
           					.attr('d', statesArc)
           					.attr('class', '.states')
-          					.attr('fill', function(d, i) { 
-          						console.log(d.data.winner);
+          					.attr('fill', function(d, i) {
           						if (d.data.winner == candidateName) {
           							return stateColors[0]; 
           						} else {
@@ -248,7 +247,6 @@
           .attr('d', function(d, i) { return sentimentsArc.outerRadius(heightScale(d.data))(d,i); })
           .attr('class', '.sentiments')
           .attr('fill', function(d, i) {
-          	console.log(i);
           	if (d.data == 0) {
           		return "none";
           	} 
