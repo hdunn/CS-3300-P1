@@ -25,6 +25,7 @@
 </style>
 </head>
 <body>
+	<svg id="key" width="600" height="100"></svg><br>
 	<svg id = "trump" width="600" height="600"></svg><br><br>
 	<svg id = "cruz" width="600" height="600"></svg><br><br>
 	<svg id = "rubio" width="600" height="600"></svg>
@@ -187,9 +188,8 @@
 			height = 500,
 			radius = 250;
 
-        var sentimentColors = d3.scale.ordinal().range(['#F78181', '#DF0101', '#B40404']);
-        var backgroundColors = d3.scale.ordinal().range(['#C0C0C0', "#D3D3D3"]);
-        var stateColors = ['#ff0000', "#610B0B"];
+        var sentimentColors = ['#F78181', '#DF0101', '#B40404'];
+        var stateColors = ['#B0B7FF', "#4B4E72"];
 
         var numStateBars = stateOrder.length;
         var numSentimentBars = sentimentArray.length;
@@ -203,7 +203,7 @@
 
         var statesArc = d3.svg.arc()
           					  .outerRadius(radius)
-          					  .innerRadius(radius-40)
+          					  .innerRadius(0)
           					  .startAngle(function(d,i) { return (i * 2 * Math.PI) / numStateBars; })
       						  .endAngle(function(d,i) { return ((i + 1) * 2 * Math.PI) / numStateBars; });
 
@@ -247,11 +247,15 @@
           .append('path')
           .attr('d', function(d, i) { return sentimentsArc.outerRadius(heightScale(d.data))(d,i); })
           .attr('class', '.sentiments')
-          .attr('fill', function(d, i) { 
-            return sentimentColors(i);
+          .attr('fill', function(d, i) {
+          	console.log(i);
+          	if (d.data == 0) {
+          		return "none";
+          	} 
+            return sentimentColors[i%3];
           });
 
-          var backgroundPath = svg.selectAll('.background')
+        var backgroundPath = svg.selectAll('.background')
           						.data(statesPie(stateOrder))
           						.enter()
           						.append('path')
@@ -326,10 +330,93 @@
 		});
 
 		// Start svg here
+		var svg = d3.select("#key")
+          			.append('svg')
+          			.attr('width', 600)
+          			.attr('height', 100);
+
+        var g = svg.append('g');
+
+        g.append("text")
+         .attr("x", 20)
+         .attr("y", 0)
+         .attr("dominant-baseline", "middle")
+         .text("Twitter Sentiment ");
+
+        g.append("rect")
+         .attr("x", 20)
+         .attr("y", 20)
+         .attr("width", 20)
+         .attr("height", 20)
+         .style("fill", "#F78181")
+
+        g.append("text")
+         .attr("x", 45)
+         .attr("y", 30)
+         .attr("dominant-baseline", "middle")
+         .text("Positive");
+
+
+        g.append("rect")
+         .attr("x", 20)
+         .attr("y", 50)
+         .attr("width", 20)
+         .attr("height", 20)
+         .style("fill", "#DF0101")
+
+        g.append("text")
+         .attr("x", 45)
+         .attr("y", 60)
+         .attr("dominant-baseline", "middle")
+         .text("Neutral");
+
+
+        g.append("rect")
+         .attr("x", 20)
+         .attr("y", 80)
+         .attr("width", 20)
+         .attr("height", 20)
+         .style("fill", "#B40404")
+
+        g.append("text")
+         .attr("x", 45)
+         .attr("y", 90)
+         .attr("dominant-baseline", "middle")
+         .text("Negative");
+
+
+        g.append("rect")
+         .attr("x", 200)
+         .attr("y", 20)
+         .attr("width", 20)
+         .attr("height", 20)
+         .style("fill", "#0040FF")
+
+        g.append("text")
+         .attr("x", 225)
+         .attr("y", 30)
+         .attr("dominant-baseline", "middle")
+         .text("Won");
+
+         g.append("rect")
+         .attr("x", 200)
+         .attr("y", 50)
+         .attr("width", 20)
+         .attr("height", 20)
+         .style("fill", "#0B0B61")
+
+        g.append("text")
+         .attr("x", 225)
+         .attr("y", 60)
+         .attr("dominant-baseline", "middle")
+         .text("Lost");
+
+         
 
 		drawData(trumpSentiments, "Donald Trump", 'http://media.cq.com/images/trump-circle.png', '#trump', stateOrder);
 		drawData(cruzSentiments, "Ted Cruz", 'http://media.cq.com/images/cruz-circle.png', '#cruz', stateOrder);
 		drawData(cruzSentiments, "Marco Rubio", 'http://media.cq.com/images/rubio-circle.png', '#rubio', stateOrder);
+
 
 	});
 
