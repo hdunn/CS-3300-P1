@@ -25,10 +25,10 @@
 </style>
 </head>
 <body>
-	<svg id="key" width="600" height="100"></svg><br>
-	<svg id = "trump" width="600" height="600"></svg><br><br>
-	<svg id = "cruz" width="600" height="600"></svg><br><br>
-	<svg id = "rubio" width="600" height="600"></svg>
+	<svg id="key" width="00" height="100"></svg><br>
+	<svg id = "trump" width="700" height="700"></svg><br><br>
+	<svg id = "cruz" width="700" height="700"></svg><br><br>
+	<svg id = "rubio" width="700" height="700"></svg>
 	<script>
 	//FUNCTION TAKEN FROM GITHUB USER CalebGrove
 	// USAGE:
@@ -136,7 +136,8 @@
 		{state:"Tennessee",winner:"Donald Trump"},
 		{state:"Texas",winner:"Ted Cruz"},
 		{state:"Vermont",winner:"Donald Trump"},
-		{state:"Virginia",winner:"Donald Trump"}
+		{state:"Virginia",winner:"Donald Trump"},
+		{state:"Kansas",winner:"Ted Cruz"}
 	];
 
 	var sentimentFrequencies = [
@@ -184,9 +185,9 @@
 	}
 
 	function drawData(sentimentArray, candidateName, candidateImg, id, stateOrder) {
-		var width = 500,
-			height = 500,
-			radius = 250;
+		var width = 600,
+			height = 600,
+			radius = 300;
 
         var sentimentColors = ['#F78181', '#DF0101', '#B40404'];
         var stateColors = ['#B0B7FF', "#4B4E72"];
@@ -196,10 +197,10 @@
 
         var svg = d3.select(id)
           			.append('svg')
-          			.attr('width', width)
-          			.attr('height', height)
+          			.attr('width', 700)
+          			.attr('height', 700)
           			.append('g')
-          			.attr('transform', 'translate(250,250)');
+          			.attr('transform', 'translate(350,350)');
 
         var statesArc = d3.svg.arc()
           					  .outerRadius(radius)
@@ -222,14 +223,17 @@
           					.append('path')
           					.attr('d', statesArc)
           					.attr('class', '.states')
+          					.attr('id', function(d,i) { return d.data.state; })
           					.attr('fill', function(d, i) {
           						if (d.data.winner == candidateName) {
           							return stateColors[0]; 
           						} else {
           							return stateColors[1];
           						} })
-          					.style('stroke', '2E2E2E')
+          					.style('stroke', '#000000')
   							.style('stroke-width', '2');
+
+  		
 
         var heightScale = d3.scale.linear().domain([0,1]).range([150,radius-50]);
 
@@ -269,6 +273,18 @@
 				    .attr("height", 150)
 				    .attr("x", -75)
 				    .attr("y",-75);
+
+
+		var stateNames = svg.selectAll(".stateNames")
+			.data(statesPie(stateOrder))
+			.enter()
+			.append("text")
+			.attr("class", "stateNames")
+			.append("textPath")
+			.attr("xlink:href", function(d,i) { return "#"+d.data.state; })
+			.style('fill', '#000000')
+			.text( function(d) { console.log(d.data.state); return d.data.state;});
+
 
 	};
 
