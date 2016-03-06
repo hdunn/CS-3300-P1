@@ -1,0 +1,72 @@
+<html>
+<head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+<!-- Load the d3 library. -->
+<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://d3js.org/topojson.v1.min.js"></script>
+<style type="text/css">
+</style>
+<body>
+<div id = "test"></div>
+	<script>
+	/*function findState(state,features){
+		features.forEach(function(r){
+			if(r.properties.name === state){
+				console.log(r);
+				return r;
+			}
+		});
+	}*/
+	
+
+	function drawState(state,element){
+		var height = 200;
+		var width = 200;
+
+		var svg = d3.select(element).append("svg")
+				.attr("height",height)
+				.attr("width",width);
+
+		var projection = d3.geo.albers()
+    					.scale(1)
+    					.translate([0, 0]);	
+	 
+	 	var path = d3.geo.path()
+	 		.projection(projection);
+	 
+	     
+	    var g = svg.append("g");
+
+	 	
+	 	d3.json("us-states.json", function(error, us) {
+	
+			us.features.forEach(function(r){
+				if(r.properties.name === state){
+					feature = r;
+				}
+			});
+	 		
+			// Compute the bounds of a feature of interest, then derive scale & translate.
+			var b = path.bounds(feature),
+			    s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+			    t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+			// Update the projection to use computed scale & translate.
+			projection
+			    .scale(s)
+			    .translate(t);
+
+	 		svg.append("path")
+ 			    .datum(feature)
+ 				.attr("d", path(feature))
+	            .style("fill", "steelblue");
+	        
+	 	});
+ 	}
+
+ 	drawState("Kansas","body");
+ 	drawState("New York","body");
+	drawState("California","#test");
+	</script>
+</body>
+</html>
