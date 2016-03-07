@@ -1,10 +1,16 @@
 <html>
 <head>
 	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Raleway:700' rel='stylesheet' type='text/css'>
+	<link href='https://fonts.googleapis.com/css?family=Lobster' rel='stylesheet' type='text/css'>
 <!-- Load the d3 library. -->
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="http://d3js.org/topojson.v1.min.js"></script>
 <style type="text/css">
+
+* {
+	font-family: 'Open Sans', sans-serif;
+}
 
 .possent {
 	fill:green;
@@ -22,13 +28,33 @@
         	stroke: #fff;
         	stroke-width: 0.75px;
 	}
+h1 {
+	font-family: 'Raleway', sans-serif;
+	text-align: center;
+	padding: 15px;
+	font-size: 40px;
+}
+p {
+	font-family: 'Open Sans', sans-serif;
+	text-align: center;
+}
+
+#flag {
+	text-align: center;
+}
+
 </style>
 </head>
 <body>
-	<svg id="key" width="00" height="100"></svg><br>
-	<svg id = "trump" width="700" height="700"></svg><br><br>
-	<svg id = "cruz" width="700" height="700"></svg><br><br>
-	<svg id = "rubio" width="700" height="700"></svg>
+	<div>
+		<h1>Can Twitter Sentiments Predict GOP Primary Results?</h1>
+		<p>After political debates, many media outlets are quick to say that a candidate won the debate simply based on Twitter discussions. However, as shown in the following graphs, the percentage of positive, negative, and neutral Twitter sentiments about a candidate by state do not necessarily correlate with their chances of winning the primary.</p>
+	</div>
+	<svg id = "trump" width="410" height="410"></svg> 
+	<svg id = "cruz" width="410" height="410"></svg> 
+	<svg id = "rubio" width="410" height="410"></svg><br>
+	<svg id="key" width="1200" height="200"></svg><br><br><br>
+	<div id="flag"></div>
 	<script>
 	//FUNCTION TAKEN FROM GITHUB USER CalebGrove
 	// USAGE:
@@ -233,22 +259,22 @@
 	}
 
 	function drawData(sentimentArray, candidateName, candidateImg, id, stateOrder) {
-		var width = 600,
-			height = 600,
-			radius = 300;
+		var width = 400,
+			height = 400,
+			radius = 200;
 
-        var sentimentColors = ['#F78181', '#DF0101', '#B40404'];
-        var stateColors = ['#B0B7FF', "#4B4E72"];
+        var sentimentColors = ['#F00', '#FFF', '#00F'];
+        var stateColors = ['#C6C3C3', "#363636"];
 
         var numStateBars = stateOrder.length;
         var numSentimentBars = sentimentArray.length;
 
         var svg = d3.select(id)
           			.append('svg')
-          			.attr('width', 700)
-          			.attr('height', 700)
+          			.attr('width', 410)
+          			.attr('height', 410)
           			.append('g')
-          			.attr('transform', 'translate(350,350)');
+          			.attr('transform', 'translate(205,205)');
 
         var statesArc = d3.svg.arc()
           					  .outerRadius(radius)
@@ -283,9 +309,9 @@
 
   		
 
-        var heightScale = d3.scale.linear().domain([0,1]).range([150,radius-50]);
+        var heightScale = d3.scale.linear().domain([0,1]).range([90,radius-20]);
 
-
+        // Equations formulated by bultiple google searches for calculating equal distance around a circle
         var sentimentsArc = d3.svg.arc()
         						.startAngle(function(d,i) { return ((i * 2 * Math.PI) / numSentimentBars); })
       							.endAngle(function(d,i) { return ((i + 1) * 2 * Math.PI) / numSentimentBars; });
@@ -312,15 +338,15 @@
           						.attr('d', backgroundArc)
           						.attr('class', '.background')
           						.attr('fill', 'none')
-          						.style('stroke', '2E2E2E')
+          						.style('stroke', '#000000')
   								.style('stroke-width', '1');
 
         var img = svg.append("svg:image")
     				.attr("xlink:href", candidateImg)
-    				.attr("width", 150)
-				    .attr("height", 150)
-				    .attr("x", -75)
-				    .attr("y",-75);
+    				.attr("width", 260)
+				    .attr("height", 160)
+				    .attr("x", -130)
+				    .attr("y",-80);
 
 
 		var stateNames = svg.selectAll(".stateNames")
@@ -328,10 +354,13 @@
 			.enter()
 			.append("text")
 			.attr("class", "stateNames")
+			.attr("dy", 15)
+			.attr("dx", 25)
 			.append("textPath")
+			.attr("transform", "rotate(180)")
 			.attr("xlink:href", function(d,i) { return "#"+d.data.state; })
 			.style('fill', '#000000')
-			.text( function(d) { console.log(d.data.state); return d.data.state;});
+			.text( function(d) { console.log(d.data.state); return d.data.abbr;});
 
 
 	};
@@ -377,7 +406,7 @@
 				trumpSentiments.push(d.possent/totalSentiments);
 				trumpSentiments.push(d.neutralsent/totalSentiments);
 				trumpSentiments.push(d.negsent/totalSentiments);
-				stateOrder.push({'state':d.state,'winner':d.winner});
+				stateOrder.push({'state':d.state,'winner':d.winner, 'abbr':abbrState(d.state, 'abbr')});
 			}
 			if (d.candidate == "Ted Cruz") {
 				cruzSentiments.push(d.possent/totalSentiments);
@@ -394,91 +423,182 @@
 		// Start svg here
 		var svg = d3.select("#key")
           			.append('svg')
-          			.attr('width', 600)
-          			.attr('height', 100);
+          			.attr('width', 1200)
+          			.attr('height', 200);
 
         var g = svg.append('g');
 
         g.append("text")
          .attr("x", 20)
-         .attr("y", 0)
+         .attr("y", 20)
          .attr("dominant-baseline", "middle")
-         .text("Twitter Sentiment ");
+         .text("Percentage of Positive, Neutral, and Negative Twitter Sentiments per State");
 
         g.append("rect")
          .attr("x", 20)
-         .attr("y", 20)
+         .attr("y", 40)
          .attr("width", 20)
          .attr("height", 20)
-         .style("fill", "#F78181")
+         .style("fill", "#F00")
 
         g.append("text")
          .attr("x", 45)
-         .attr("y", 30)
+         .attr("y", 50)
          .attr("dominant-baseline", "middle")
          .text("Positive");
 
 
         g.append("rect")
-         .attr("x", 20)
-         .attr("y", 50)
+         .attr("x", 190)
+         .attr("y", 40)
          .attr("width", 20)
          .attr("height", 20)
-         .style("fill", "#DF0101")
+         .style("fill", "#FFF")
+         .style("stroke", "#000000")
 
         g.append("text")
-         .attr("x", 45)
-         .attr("y", 60)
+         .attr("x", 215)
+         .attr("y", 50)
          .attr("dominant-baseline", "middle")
          .text("Neutral");
 
 
         g.append("rect")
-         .attr("x", 20)
-         .attr("y", 80)
+         .attr("x", 360)
+         .attr("y", 40)
          .attr("width", 20)
          .attr("height", 20)
-         .style("fill", "#B40404")
+         .style("fill", "#00F")
 
         g.append("text")
-         .attr("x", 45)
-         .attr("y", 90)
+         .attr("x", 385)
+         .attr("y", 50)
          .attr("dominant-baseline", "middle")
          .text("Negative");
 
 
-        g.append("rect")
-         .attr("x", 200)
+        g.append("text")
+         .attr("x", 960)
          .attr("y", 20)
+         .attr("dominant-baseline", "middle")
+         .text("Outcome in State Primary");
+
+        g.append("rect")
+         .attr("x", 960)
+         .attr("y", 40)
          .attr("width", 20)
          .attr("height", 20)
-         .style("fill", "#0040FF")
+         .style("fill", "#C6C3C3")
 
         g.append("text")
-         .attr("x", 225)
-         .attr("y", 30)
+         .attr("x", 985)
+         .attr("y", 50)
          .attr("dominant-baseline", "middle")
          .text("Won");
 
-         g.append("rect")
-         .attr("x", 200)
-         .attr("y", 50)
+
+        g.append("rect")
+         .attr("x", 1130)
+         .attr("y", 40)
          .attr("width", 20)
          .attr("height", 20)
-         .style("fill", "#0B0B61")
+         .style("fill", "#363636")
 
         g.append("text")
-         .attr("x", 225)
-         .attr("y", 60)
+         .attr("x", 1155)
+         .attr("y", 50)
          .attr("dominant-baseline", "middle")
          .text("Lost");
 
-         
-
-		drawData(trumpSentiments, "Donald Trump", 'http://media.cq.com/images/trump-circle.png', '#trump', stateOrder);
+		drawData(trumpSentiments, "Donald Trump", 'trump_cropped.png', '#trump', stateOrder);
 		drawData(cruzSentiments, "Ted Cruz", 'http://media.cq.com/images/cruz-circle.png', '#cruz', stateOrder);
 		drawData(cruzSentiments, "Marco Rubio", 'http://media.cq.com/images/rubio-circle.png', '#rubio', stateOrder);
 
+		// Flag drawing
+
+		var precWon = [
+			{candidate:'Donald Trump', d_tot:526, d_won:280},
+			{candidate:'Ted Cruz', d_tot:319, d_won:173},
+			{candidate:'Marco Rubio', d_tot:38, d_won:17},
+		];
+
+		var height = 400;
+		var width = 600;
+		var svg = d3.select("#flag").append("svg")
+		.attr("height", height).attr("width", width);
+		var count = 0;
+		var barHeight = height/3;
+		var wScale = d3.scale.linear().domain([0, 1]).range([0,600]);
+
+		precWon.forEach(function (c) {
+			if (count != barHeight){
+				color1 = 'red';
+				color2 = '#F4EAD5';
+			} else {
+				color1 = '#F4EAD5';
+				color2 = 'red';
+			}
+			var percDel = c.d_won / c.d_tot;
+			svg.append("rect").attr("x", 0)
+				.attr("y", count)
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color1);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count)
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color1)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", 0)
+				.attr("y", count+barHeight/3)
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color2);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count+barHeight/3)
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color2)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", 0)
+				.attr("y", count+2*(barHeight/3))
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color1);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count+2*(barHeight/3))
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color1)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count)
+				.attr("height", barHeight)
+				.attr("width", 10)
+				.style("fill", '#294A74');
+			svg.append("text").text(c.candidate)
+				.attr("x",(wScale(percDel)+10))
+				.attr("y",count+2*(barHeight/3))
+				.style("font-family","Lobster")
+				.style("font-size",20);
+			count+=barHeight; 
+		}); 
+
+
+		svg.append("rect").attr("x", 0)
+			.attr("y", 0)
+			.attr("height", 200)
+			.attr("width", 200)
+			.style("fill", "#00F");
+		for (j = 10; j < 189; j+=21) { 
+			for (i = 10; i < 189; i+=21) { 
+	    		svg.append("path")
+	    		.attr("d","M 10,50 L 25,0 L 40,50 L 0,20 L 50,20 Z")
+	    		.attr("transform", "translate(" + i + "," + j + "), scale(.28,.28)" )
+	    		.style("fill","white");
+			}
+		}
 
 	});
 	</script>
