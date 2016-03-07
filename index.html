@@ -528,7 +528,7 @@ p {
 		.attr("height", height).attr("width", width);
 		var count = 0;
 		var barHeight = height/3;
-		var wScale = d3.scale.linear().domain([0, 1]).range([0,600]);
+		var wScale = d3.scale.linear().domain([0, .5]).range([0,600]);
 
 		precWon.forEach(function (c) {
 			if (count != barHeight){
@@ -538,7 +538,7 @@ p {
 				color1 = '#F4EAD5';
 				color2 = 'red';
 			}
-			var percDel = c.d_won / c.d_tot;
+			var percDel = c.d_won / 872;
 			svg.append("rect").attr("x", 0)
 				.attr("y", count)
 				.attr("height", barHeight/3)
