@@ -1,0 +1,61 @@
+<html>
+<head>
+	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<style>body { font-family: "Open Sans"; } div { margin: 30px; }</style>
+</head>
+<body>
+	<div id="flag"></div>
+	<div>
+		<script>
+		var primaryresults = [
+			{state:"Iowa",winner:"Ted Cruz",d_won:8,d_tot:30},
+			{state:"New Hampshire",winner:"Donald Trump",d_won:11,d_tot:23},
+			{state:"South Carolina",winner:"Donald Trump",d_won:50,d_tot:50},
+			{state:"Nevada",winner:"Donald Trump",d_won:14,d_tot:30},
+			{state:"Alabama",winner:"Donald Trump",d_won:36,d_tot:50},
+			{state:"Alaska",winner:"Ted Cruz",d_won:12,d_tot:28},
+			{state:"Arkansas",winner:"Donald Trump",d_won:16,d_tot:40},
+			{state:"Georgia",winner:"Donald Trump",d_won:40,d_tot:76},
+			{state:"Massachusetts",winner:"Donald Trump",d_won:22,d_tot:42},
+			{state:"Minnesota",winner:"Marco Rubio",d_won:17,d_tot:38},
+			{state:"Oklahoma",winner:"Ted Cruz",d_won:15,d_tot:43},
+			{state:"Tennessee",winner:"Donald Trump",d_won:31,d_tot:58},
+			{state:"Texas",winner:"Ted Cruz",d_won:102,d_tot:155},
+			{state:"Vermont",winner:"Donald Trump",d_won:6,d_tot:16},
+			{state:"Virginia",winner:"Donald Trump",d_won:17,d_tot:49}
+		];
+
+		var height = 400;
+		var width = 600;
+		var padding = 200;
+		var svg = d3.select("#flag").append("svg")
+		.attr("height", height).attr("width", width);
+		var yBands = d3.scale.ordinal()
+			.domain(primaryresults.state)
+			.rangeRoundBands([10, height], 0.3);
+		var yPoints = d3.scale.ordinal()
+			.domain(punctCounts.state)
+			.rangePoints([10, height], 1.0);
+		var xScale = d3.scale.linear()
+			.domain([0, 10])
+			.range([padding, width - padding]);
+		// We'll replace the 0s with functions
+		punctCounts.keys.forEach(function (p) {
+			svg.append("text").attr("x", xScale(0) - padding/2)
+			.attr("y", yPoints(p))
+			.text(p);
+			
+			svg.append("rect")
+			.attr("x", xScale(0))
+			.attr("y", yBands(p))
+			.attr("height", yBands.rangeBand())
+			.attr("width", xScale(primaryresults.d_tot[p])-xScale(0))
+			.attr("class", "dullorange");
+		});
+		</script>
+	</div>
+
+	
+</body>
+</html>
