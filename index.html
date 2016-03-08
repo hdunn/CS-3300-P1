@@ -12,6 +12,10 @@
 	font-family: 'Open Sans', sans-serif;
 }
 
+div {
+	text-align: center;
+}
+
 .possent {
 	fill:green;
 }
@@ -52,9 +56,12 @@ p {
 	</div>
 	<svg id = "trump" width="410" height="410"></svg> 
 	<svg id = "cruz" width="410" height="410"></svg> 
-	<svg id = "rubio" width="410" height="410"></svg><br>
-	<svg id="key" width="1200" height="200"></svg><br><br><br>
-	<div id="flag"></div>
+	<svg id = "rubio" width="410" height="410"></svg><br><br>
+	<svg id="key" width="1200" height="80"></svg><br>
+	<div>
+		<p>Due to the large discrepancies between sentiments on Twitter and outcomes of primaries in each state, it could be easy to argue that winning states has less of an impact than earning delegates, and some may wonder how each candidate is actually performing in the primaries. The visualization below shows the percentage of delegates that each of the top three candidates has from the states which have already held primaries.</p>
+	</div><br><br>
+	<div id="flag"></div><br><br>
 	<script>
 	//FUNCTION TAKEN FROM GITHUB USER CalebGrove
 	// USAGE:
@@ -359,11 +366,99 @@ p {
 			.append("textPath")
 			.attr("transform", "rotate(180)")
 			.attr("xlink:href", function(d,i) { return "#"+d.data.state; })
-			.style('fill', '#000000')
+			.style('fill', '#F00')
 			.text( function(d) { console.log(d.data.state); return d.data.abbr;});
 
 
 	};
+
+	function drawFlag() {
+		// d_won = total number of delagates won by each candidate
+		var precWon = [
+			{candidate:'Donald Trump', d_won:384},
+			{candidate:'Ted Cruz', d_won:300},
+			{candidate:'Marco Rubio', d_won:151},
+		];
+
+		var height = 400;
+		var width = 600;
+		var svg = d3.select("#flag").append("svg")
+		.attr("height", height).attr("width", width);
+		var count = 0;
+		var barHeight = height/3;
+		var wScale = d3.scale.linear().domain([0, .6]).range([0,575]);
+
+		precWon.forEach(function (c) {
+			if (count != barHeight){
+				color1 = 'red';
+				color2 = '#F4EAD5';
+			} else {
+				color1 = '#F4EAD5';
+				color2 = 'red';
+			}
+			var percDel = c.d_won / 872;
+			var nameString = c.candidate + "\t" + Math.floor(percDel*100)+"%";
+			svg.append("rect").attr("x", 0)
+				.attr("y", count)
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color1);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count)
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color1)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", 0)
+				.attr("y", count+barHeight/3)
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color2);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count+barHeight/3)
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color2)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", 0)
+				.attr("y", count+2*(barHeight/3))
+				.attr("height", barHeight/3)
+				.attr("width", wScale(percDel))
+				.style("fill", color1);
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count+2*(barHeight/3))
+				.attr("height", barHeight/3)
+				.attr("width", 600 - wScale(percDel))
+				.style("fill", color1)
+				.style("opacity", ".2");
+			svg.append("rect").attr("x", wScale(percDel))
+				.attr("y", count)
+				.attr("height", barHeight)
+				.attr("width", 10)
+				.style("fill", '#294A74');
+			svg.append("text").text(nameString)
+				.attr("x",(wScale(percDel)+10))
+				.attr("y",count+2*(barHeight/3))
+				.style("font-family","Lobster")
+				.style("font-size",20);
+			count+=barHeight; 
+		}); 
+
+
+		svg.append("rect").attr("x", 0)
+			.attr("y", 0)
+			.attr("height", 200)
+			.attr("width", 200)
+			.style("fill", "#00F");
+		for (j = 10; j < 189; j+=21) { 
+			for (i = 10; i < 189; i+=21) { 
+	    		svg.append("path")
+	    		.attr("d","M 10,50 L 25,0 L 40,50 L 0,20 L 50,20 Z")
+	    		.attr("transform", "translate(" + i + "," + j + "), scale(.28,.28)" )
+	    		.style("fill","white");
+			}
+		}
+	}
 
 
 	//Get data for each candidate by state
@@ -432,7 +527,8 @@ p {
          .attr("x", 20)
          .attr("y", 20)
          .attr("dominant-baseline", "middle")
-         .text("Percentage of Positive, Neutral, and Negative Twitter Sentiments per State");
+         .text("Percentage of Positive, Neutral, and Negative Twitter Sentiments per State")
+         .style('font-size', 14);
 
         g.append("rect")
          .attr("x", 20)
@@ -445,7 +541,8 @@ p {
          .attr("x", 45)
          .attr("y", 50)
          .attr("dominant-baseline", "middle")
-         .text("Positive");
+         .text("Positive")
+         .style('font-size', 14);
 
 
         g.append("rect")
@@ -460,7 +557,8 @@ p {
          .attr("x", 215)
          .attr("y", 50)
          .attr("dominant-baseline", "middle")
-         .text("Neutral");
+         .text("Neutral")
+         .style('font-size', 14);
 
 
         g.append("rect")
@@ -474,14 +572,16 @@ p {
          .attr("x", 385)
          .attr("y", 50)
          .attr("dominant-baseline", "middle")
-         .text("Negative");
+         .text("Negative")
+         .style('font-size', 14);
 
 
         g.append("text")
          .attr("x", 960)
          .attr("y", 20)
          .attr("dominant-baseline", "middle")
-         .text("Outcome in State Primary");
+         .text("Outcome in State Primary")
+         .style('font-size', 14);
 
         g.append("rect")
          .attr("x", 960)
@@ -494,6 +594,7 @@ p {
          .attr("x", 985)
          .attr("y", 50)
          .attr("dominant-baseline", "middle")
+         .style('font-size', 14)
          .text("Won");
 
 
@@ -508,6 +609,7 @@ p {
          .attr("x", 1155)
          .attr("y", 50)
          .attr("dominant-baseline", "middle")
+         .style('font-size', 14)
          .text("Lost");
 
 		drawData(trumpSentiments, "Donald Trump", 'trump_cropped.png', '#trump', stateOrder);
@@ -515,91 +617,8 @@ p {
 		drawData(cruzSentiments, "Marco Rubio", 'http://media.cq.com/images/rubio-circle.png', '#rubio', stateOrder);
 
 		// Flag drawing
-
-		// d_won = total number of delagates won by each candidate
-		var precWon = [
-			{candidate:'Donald Trump', d_won:384},
-			{candidate:'Ted Cruz', d_won:300},
-			{candidate:'Marco Rubio', d_won:151},
-		];
-
-		var height = 400;
-		var width = 600;
-		var svg = d3.select("#flag").append("svg")
-		.attr("height", height).attr("width", width);
-		var count = 0;
-		var barHeight = height/3;
-		var wScale = d3.scale.linear().domain([0, .6]).range([0,600]);
-
-		precWon.forEach(function (c) {
-			if (count != barHeight){
-				color1 = 'red';
-				color2 = '#F4EAD5';
-			} else {
-				color1 = '#F4EAD5';
-				color2 = 'red';
-			}
-			var percDel = c.d_won / 872;
-			svg.append("rect").attr("x", 0)
-				.attr("y", count)
-				.attr("height", barHeight/3)
-				.attr("width", wScale(percDel))
-				.style("fill", color1);
-			svg.append("rect").attr("x", wScale(percDel))
-				.attr("y", count)
-				.attr("height", barHeight/3)
-				.attr("width", 600 - wScale(percDel))
-				.style("fill", color1)
-				.style("opacity", ".2");
-			svg.append("rect").attr("x", 0)
-				.attr("y", count+barHeight/3)
-				.attr("height", barHeight/3)
-				.attr("width", wScale(percDel))
-				.style("fill", color2);
-			svg.append("rect").attr("x", wScale(percDel))
-				.attr("y", count+barHeight/3)
-				.attr("height", barHeight/3)
-				.attr("width", 600 - wScale(percDel))
-				.style("fill", color2)
-				.style("opacity", ".2");
-			svg.append("rect").attr("x", 0)
-				.attr("y", count+2*(barHeight/3))
-				.attr("height", barHeight/3)
-				.attr("width", wScale(percDel))
-				.style("fill", color1);
-			svg.append("rect").attr("x", wScale(percDel))
-				.attr("y", count+2*(barHeight/3))
-				.attr("height", barHeight/3)
-				.attr("width", 600 - wScale(percDel))
-				.style("fill", color1)
-				.style("opacity", ".2");
-			svg.append("rect").attr("x", wScale(percDel))
-				.attr("y", count)
-				.attr("height", barHeight)
-				.attr("width", 10)
-				.style("fill", '#294A74');
-			svg.append("text").text(c.candidate)
-				.attr("x",(wScale(percDel)+10))
-				.attr("y",count+2*(barHeight/3))
-				.style("font-family","Lobster")
-				.style("font-size",20);
-			count+=barHeight; 
-		}); 
-
-
-		svg.append("rect").attr("x", 0)
-			.attr("y", 0)
-			.attr("height", 200)
-			.attr("width", 200)
-			.style("fill", "#00F");
-		for (j = 10; j < 189; j+=21) { 
-			for (i = 10; i < 189; i+=21) { 
-	    		svg.append("path")
-	    		.attr("d","M 10,50 L 25,0 L 40,50 L 0,20 L 50,20 Z")
-	    		.attr("transform", "translate(" + i + "," + j + "), scale(.28,.28)" )
-	    		.style("fill","white");
-			}
-		}
+		drawFlag();
+		
 
 	});
 	</script>
