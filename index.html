@@ -516,10 +516,11 @@ p {
 
 		// Flag drawing
 
+		// d_won = total number of delagates won by each candidate
 		var precWon = [
-			{candidate:'Donald Trump', d_tot:526, d_won:280},
-			{candidate:'Ted Cruz', d_tot:319, d_won:173},
-			{candidate:'Marco Rubio', d_tot:38, d_won:17},
+			{candidate:'Donald Trump', d_won:384},
+			{candidate:'Ted Cruz', d_won:300},
+			{candidate:'Marco Rubio', d_won:151},
 		];
 
 		var height = 400;
@@ -528,7 +529,7 @@ p {
 		.attr("height", height).attr("width", width);
 		var count = 0;
 		var barHeight = height/3;
-		var wScale = d3.scale.linear().domain([0, .5]).range([0,600]);
+		var wScale = d3.scale.linear().domain([0, .6]).range([0,600]);
 
 		precWon.forEach(function (c) {
 			if (count != barHeight){
