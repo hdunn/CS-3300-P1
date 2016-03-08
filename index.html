@@ -53,9 +53,9 @@ p {
 		<h1>Can Twitter Sentiments Predict GOP Primary Results?</h1>
 		<p>After political debates, many media outlets are quick to say that a candidate won the debate simply based on Twitter discussions. However, as shown in the following graphs, the percentage of positive, negative, and neutral Twitter sentiments about a candidate by state do not necessarily correlate with their chances of winning the primary.</p>
 	</div>
-	<svg id = "trump" width="410" height="410"></svg> 
-	<svg id = "cruz" width="410" height="410"></svg> 
-	<svg id = "rubio" width="410" height="410"></svg><br><br>
+	<svg id = "trump" width="410" height="460"></svg> 
+	<svg id = "cruz" width="410" height="460"></svg> 
+	<svg id = "rubio" width="410" height="460"></svg><br>
 	<svg id="key" width="1200" height="80"></svg><br>
 	<div>
 		<p>Due to the large discrepancies between sentiments on Twitter and outcomes of primaries in each state, it could be easy to argue that winning states has less of an impact than earning delegates, and some may wonder how each candidate is actually performing in the primaries. The visualization below shows the percentage of delegates that each of the top three candidates has from the states which have already held primaries.</p>
@@ -232,9 +232,19 @@ p {
         var svg = d3.select(id)
           			.append('svg')
           			.attr('width', 410)
-          			.attr('height', 410)
+          			.attr('height', 460)
           			.append('g')
-          			.attr('transform', 'translate(205,205)');
+          			.attr('transform', 'translate(205,255)');
+
+         svg.append('text')
+         	.attr("x", 0)
+         	.attr("y", -1*radius-30)
+         	.attr("dominant-baseline", "middle")
+         	.attr("text-anchor", "middle")
+         	.style('font-size', 28)
+         	.style('font-weight', 'bold')
+         	.style('font-family', 'Raleway')
+         	.text(candidateName);
 
         var statesArc = d3.svg.arc()
           					  .outerRadius(radius)
